@@ -30,9 +30,6 @@ class Session implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, DelegateInterface $delegate) : ResponseInterface
     {
-        // $session = new LazySession($this->persistence, $request);
-        // var_dump($this->session->get('auth'));
-        // exit;
         $response = $delegate->process($request);
         return $this->persistence->persistSession($this->session, $response);
     }

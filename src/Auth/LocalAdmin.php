@@ -10,13 +10,14 @@ use Dms\Web\Expressive\Auth\Password\HashedPassword;
 use Dms\Web\Expressive\Auth\Persistence\Mapper\AdminMapper;
 use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Mail\Message;
+use JsonSerializable;
 
 /**
  * The laravel admin entity.
  *
  * @author Elliot Levin <elliotlevin@hotmail.com>
  */
-class LocalAdmin extends Admin implements CanResetPassword
+class LocalAdmin extends Admin implements CanResetPassword, JsonSerializable
 {
     const PASSWORD = 'password';
     const REMEMBER_TOKEN = 'rememberToken';
@@ -151,5 +152,17 @@ class LocalAdmin extends Admin implements CanResetPassword
             $m->subject('Your DMS account password reset');
             $m->to($this->emailAddress->asString(), $this->fullName);
         });
+    }
+
+    public function jsonSerialize()
+    {
+        return [
+            LocalAdmin::FULL_NAME => $this->{LocalAdmin::FULL_NAME},
+            LocalAdmin::EMAIL_ADDRESS => $this->{LocalAdmin::EMAIL_ADDRESS},
+            LocalAdmin::USERNAME => $this->{LocalAdmin::USERNAME},
+            LocalAdmin::IS_SUPER_USER => $this->{LocalAdmin::IS_SUPER_USER},
+            LocalAdmin::IS_BANNED => $this->{LocalAdmin::IS_BANNED},
+            LocalAdmin::ROLE_IDS => $this->{LocalAdmin::ROLE_IDS},
+        ];
     }
 }

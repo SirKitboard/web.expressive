@@ -125,7 +125,7 @@ class HktAuthSystem extends AuthSystem
     public function login(string $username, string $password)
     {
         $user = $this->loadByCredentials($username, $password);
-        $this->session->set('auth', $user);
+        $this->session->set('auth', serialize($user));
     }
 
     /**
@@ -187,7 +187,7 @@ class HktAuthSystem extends AuthSystem
             throw NotAuthenticatedException::format('No user is authenticated');
         }
 
-        return $user;
+        return unserialize($user);
     }
 
     /**
