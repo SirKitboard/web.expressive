@@ -1,7 +1,6 @@
 <?php
 use Aura\Session\Session;
 use Dms\Web\Expressive\Ioc\LaravelIocContainer;
-use Illuminate\Config\Repository;
 use Illuminate\Container\Container;
 use Zend\Expressive\Router\RouterInterface;
 
@@ -35,11 +34,12 @@ if (! function_exists('csrf_token')) {
      */
     function csrf_token()
     {
-        $session = app(Session::class);
-        $csrfToken = $session->getCsrfToken();
-        $csrfToken->regenerateValue();
-
-        return $csrfToken->getValue();
+        return "csrf_token_not_implemented";
+        // $session = app(Session::class);
+        // $csrfToken = $session->getCsrfToken();
+        // $csrfToken->regenerateValue();
+        //
+        // return $csrfToken->getValue();
     }
 }
 
@@ -64,7 +64,7 @@ if (! function_exists('route')) {
      *
      * @param  string $name
      * @param  array  $parameters
-     * @param  array   $absolute
+     * @param  array  $absolute
      * @return string
      */
     function route($name, $parameters = [], $absolute = [])
@@ -86,24 +86,24 @@ if (! function_exists('session')) {
      */
     function session($key = null, $default = null)
     {
-        // return "session" . var_export($key, true) . var_export($default, true);
-        if (is_null($key)) {
-            return app(Session::class)->getSegment('session');
-        }
-
-        if (is_array($key)) {
-            $segment = app(Session::class)->getSegment('session');
-
-            foreach ($key as $k => $value) {
-                $segment->set($k, $value);
-            }
-
-            return true;
-        }
-
-        $segment = app(Session::class)->getSegment('session');
-
-        return $segment->get($key, $default);
+        return "session" . var_export($key, true) . var_export($default, true);
+        // if (is_null($key)) {
+        //     return app(Session::class)->getSegment('session');
+        // }
+        //
+        // if (is_array($key)) {
+        //     $segment = app(Session::class)->getSegment('session');
+        //
+        //     foreach ($key as $k => $value) {
+        //         $segment->set($k, $value);
+        //     }
+        //
+        //     return true;
+        // }
+        //
+        // $segment = app(Session::class)->getSegment('session');
+        //
+        // return $segment->get($key, $default);
     }
 }
 

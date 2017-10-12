@@ -5,8 +5,8 @@ namespace Dms\Web\Expressive;
 use Aura\Intl\Package;
 use Aura\Intl\TranslatorLocator;
 use Aura\Intl\TranslatorLocatorFactory;
-use Aura\Session\Session;
-use Aura\Session\SessionFactory;
+// use Aura\Session\Session;
+// use Aura\Session\SessionFactory;
 use BehEh\Flaps\Flap;
 use BehEh\Flaps\Flaps;
 use BehEh\Flaps\Storage\DoctrineCacheAdapter;
@@ -45,6 +45,7 @@ use Dms\Web\Expressive\File\LaravelApplicationDirectories;
 use Dms\Web\Expressive\File\Persistence\ITemporaryFileRepository;
 use Dms\Web\Expressive\File\Persistence\TemporaryFileRepository;
 use Dms\Web\Expressive\File\TemporaryFileService;
+use Dms\Web\Expressive\Http\Middleware\Session;
 use Dms\Web\Expressive\Ioc\LaravelIocContainer;
 use Dms\Web\Expressive\Language\LanguageProvider;
 use Dms\Web\Expressive\Middleware\AuthenticationMiddleware;
@@ -67,7 +68,12 @@ use Illuminate\Events\Dispatcher;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
 use Psr\Cache\CacheItemPoolInterface;
-use Zend\Expressive\Helper\UrlHelper;
+use Psr\Http\Message\ServerRequestInterface;
+use Zend\Diactoros\ServerRequestFactory;
+use Zend\Expressive\Session\Ext\PhpSessionPersistence;
+use Zend\Expressive\Session\LazySession;
+use Zend\Expressive\Session\SessionInterface;
+use Zend\Expressive\Session\SessionPersistenceInterface;
 
 class ContainerConfig
 {
@@ -85,11 +91,29 @@ class ContainerConfig
 
         $container->bindValue(Container::class, $container->getLaravelContainer());
 
-        $container->bindCallback(IIocContainer::SCOPE_SINGLETON, Session::class, function () {
-            $session_factory = new SessionFactory;
-            $session = $session_factory->newInstance($_COOKIE);
-            return $session;
+        $container->bindCallback(IIocContainer::SCOPE_SINGLETON, ServerRequestInterface::class, function () {
+            return ServerRequestFactory::fromGlobals();
         });
+
+        $container->bindCallback(IIocContainer::SCOPE_SINGLETON, SessionPersistenceInterface::class, function () use ($container) {
+            return $container->get(PhpSessionPersistence::class);
+        });
+
+        // todo verify alias
+        // $container->alias(PhpSessionPersistence::class, SessionPersistenceInterface::class);
+
+        $container->bindCallback(IIocContainer::SCOPE_SINGLETON, SessionInterface::class, function () use ($container) {
+            return $container->get(LazySession::class);
+        });
+
+        // $container->bindCallback(IIocContainer::SCOPE_SINGLETON, Session::class, function () {
+        //     $session_factory = new SessionFactory;
+        //     $session = $session_factory->newInstance($_COOKIE);
+        //     return $session;
+        // });
+
+        // Session Middleware
+        $container->bind(IIocContainer::SCOPE_SINGLETON, Session::class, Session::class);
 
         $container->bind(IIocContainer::SCOPE_SINGLETON, AdminDmsUserProvider::class, AdminDmsUserProvider::class);
 
