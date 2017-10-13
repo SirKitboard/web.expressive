@@ -9,6 +9,7 @@ use Dms\Core\Module\ITableView;
 use Dms\Web\Expressive\Http\ModuleContext;
 use Dms\Web\Expressive\Renderer\Table\TableRenderer;
 use Dms\Web\Expressive\Renderer\Widget\WidgetRendererCollection;
+use Zend\Expressive\Session\SessionInterface;
 use Zend\Expressive\Template\TemplateRendererInterface;
 
 /**
@@ -24,19 +25,27 @@ class ReadModuleRenderer extends ModuleRenderer
     protected $tableRenderer;
 
     /**
+     * @var SessionInterface
+     */
+    protected $session;
+
+    /**
      * ReadModuleRenderer constructor.
      *
      * @param WidgetRendererCollection  $widgetRenderers
      * @param TemplateRendererInterface $template
      * @param TableRenderer             $tableRenderer
+     * @param SessionInterface             $session
      */
     public function __construct(
         WidgetRendererCollection $widgetRenderers,
         TemplateRendererInterface $template,
-        TableRenderer $tableRenderer
+        TableRenderer $tableRenderer,
+        SessionInterface $session
     ) {
         parent::__construct($widgetRenderers, $template);
         $this->tableRenderer = $tableRenderer;
+        $this->session = $session;
     }
 
     /**
@@ -82,8 +91,8 @@ class ReadModuleRenderer extends ModuleRenderer
             }
         }
 
-        $activeViewName = session('initial-view-name') && $summaryTable->hasView(session('initial-view-name'))
-            ? session('initial-view-name')
+        $activeViewName = $this->session->get('initial-view-name') && $summaryTable->hasView($this->session->get('initial-view-name'))
+            ? $this->session->get('initial-view-name')
             : $summaryTable->getDefaultView()->getName();
 
         return $this->template->render(
